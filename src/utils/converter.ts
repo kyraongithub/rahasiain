@@ -1,7 +1,4 @@
-export const handleConvert = (
-  words: string = "hello",
-  setsecret: React.Dispatch<React.SetStateAction<string>>
-) => {
+export const handleConvert = (words: string = "hello") => {
   let binary = "";
 
   for (let i = 0; i < words.length; i++) {
@@ -9,5 +6,5 @@ export const handleConvert = (
     binary += ascii.padStart(8, "0");
   }
 
-  setsecret(binary);
+  return binary;
 };

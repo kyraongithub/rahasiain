@@ -8,13 +8,14 @@ import {
   getSecretHistory,
   setSecretHistory,
 } from "@/utils/common";
+import Background from "@/components/background";
 
 const Homepage = () => {
   const [words, setwords] = useState<string>("");
   const [secret, setsecret] = useState<string>("");
   const [history, setHistory] = useState<string[]>([]);
   const [isCopy, setIsCopy] = useState<boolean>(false);
-  const [expandHistory, setExpandHistory] = useState<boolean>(false);
+  const [tab, setTab] = useState<string>("rahasiain");
 
   useEffect(() => {
     const localHistory = getSecretHistory();
@@ -32,7 +33,7 @@ const Homepage = () => {
   };
   const handleSubmit = (word: string) => {
     setwords(word);
-    handleConvert(word, setsecret);
+    setsecret(handleConvert(word));
     setSecretHistory(word);
     setHistory(getSecretHistory());
   };
@@ -57,38 +58,90 @@ const Homepage = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Background />
       <section className={styles.hero}>
-        <h1>Rahasia.in</h1>
-        <h3>ngode ke dia dengan gaya</h3>
-        <input
-          type={"text"}
-          value={words}
-          onFocus={() => setExpandHistory(true)}
-          onBlur={() => setExpandHistory(false)}
-          onChange={(e) => setwords(e.target.value)}
-        />
-        <button onClick={() => handleSubmit(words)}>Rahasiain</button>
-
-        {expandHistory ? (
-          <div>
-            {history.length > 0 ? (
-              <p onClick={() => handleClearAllHistory()}>Delete all</p>
-            ) : null}
-            {history.map((item: string, key: number) => (
-              <div key={key}>
-                <p onClick={() => handleSubmit(item)}>{item}</p>
-                <p onClick={() => handleDeleteHistory(item)}>delete</p>
+        <div className={styles["tab"]}>
+          <p
+            className={[
+              styles.button,
+              tab === "rahasiain" && styles.active,
+            ].join(" ")}
+            onClick={() => setTab("rahasiain")}
+          >
+            Rahasiain
+          </p>
+          <p
+            className={[styles.button, tab === "history" && styles.active].join(
+              " "
+            )}
+            onClick={() => setTab("history")}
+          >
+            History
+          </p>
+        </div>
+        <div className={styles["content"]}>
+          {tab === "history" ? (
+            <div>
+              <h1>Dokumen rahasia</h1>
+              {history.length === 0 && <p>Belum ada rahasia</p>}
+              {history.length > 0 ? (
+                <p
+                  className={[
+                    styles.button,
+                    styles.delete,
+                    styles["delete-all"],
+                  ].join(" ")}
+                  onClick={() => handleClearAllHistory()}
+                >
+                  Hapus semua history
+                </p>
+              ) : null}
+              {history.map((item: string, key: number) => (
+                <div className={styles["history-item"]} key={key}>
+                  <p onClick={() => handleSubmit(item)}>{item}</p>
+                  <div className={styles.action}>
+                    <p
+                      className={[styles.button, styles.copy].join(" ")}
+                      onClick={() => handleCopyClipboard(handleConvert(item))}
+                    >
+                      {isCopy ? "copied" : "copy kode"}
+                    </p>
+                    <p
+                      className={[styles.button, styles.delete].join(" ")}
+                      onClick={() => handleDeleteHistory(item)}
+                    >
+                      hapus
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              <h1>Rahasia.in</h1>
+              <h3>ngode ke dia dengan gaya</h3>
+              <div className={styles["input"]}>
+                <input
+                  type={"text"}
+                  value={words}
+                  onChange={(e) => setwords(e.target.value)}
+                />
+                <button onClick={() => handleSubmit(words)}>Rahasiain</button>
               </div>
-            ))}
-          </div>
-        ) : null}
-        <div>
-          <p className={styles.secret}>{secret}</p>
-          {secret !== "" ? (
-            <button onClick={() => handleCopyClipboard(secret)}>
-              {isCopy ? "Copied" : "Copy"}
-            </button>
-          ) : null}
+
+              <div className={styles["secret-container"]}>
+                <p className={styles.secret}>{secret}</p>
+                {secret !== "" ? (
+                  <button
+                    className={styles["secret-copy"]}
+                    onClick={() => handleCopyClipboard(secret)}
+                  >
+                    {isCopy ? "Copied" : "Copy"}
+                  </button>
+                ) : null}
+              </div>
+            </>
+          )}
         </div>
       </section>
     </>
